@@ -426,7 +426,7 @@ Microseconds for one run through Dhrystone: 542
 Dhrystones per Second:                      1844
   ```
 
-ASFRV32IM runs Dhrystones as 1MHz, so ASFRV32IM's DMIPS is 0.952 (VAX11/780's score 1757 / 1844).
+ASFRV32IM runs Dhrystones as 1MHz, so ASFRV32IM's DMIPS is 1.0495 (1844 / VAX11/780's score 1757).
 
 ## ASFRV32IM Design
 ![block diagram](images/ASFRV32IM_block_diagram.png)
