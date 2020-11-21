@@ -297,8 +297,8 @@ I tested only 10 iterations.
 
   ```
 $ git clone https://github.com/eembc/coremark.git
-$ patch -p1 < ../coremark.patch
 $ cd coremark
+$ patch -p1 < ../coremark.patch
 $ make PORT_DIR=barebones ITERATIONS=10
 $ riscv64-unknown-elf-objcopy -O binary coremark.bin tmp.bin
 $ python ../freedom-bin2hex.py -w 8 tmp.bin coremark.hex
