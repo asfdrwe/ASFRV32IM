@@ -138,7 +138,7 @@ You use objcopy command and [freedom-bin2hex.py](https://github.com/sifive/elf2h
 
   ```
 $ riscv64-unknown-elf-objcopy -O binary test1 test1.bin
-$ freedom-bin2hex.py -w 8 test1.bin test.hex
+$ python freedom-bin2hex.py -w 8 test1.bin test.hex
   ```
 
 Run
@@ -187,7 +187,7 @@ $ riscv64-unknown-elf-gcc -o test2.bin start.S test2.c -march=rv32g -mabi=ilp32 
 Convert to hexadecimal text
   ```
 $ riscv64-unknown-elf-objcopy test2 -O binary test2.bin
-$ freedom-bin2hex.py -w 8 test2.bin test.hex
+$ python freedom-bin2hex.py -w 8 test2.bin test.hex
   ```
 
 Run
@@ -240,7 +240,7 @@ $ riscv64-unknown-elf-gcc -O2 -o uart_c -fno-builtin -march=rv32g -mabi=ilp32 -n
 Convert to hexadecimal text
   ```
 $ riscv64-unknown-elf-objcopy uart_c -O binary uart_c.bin
-$ freedom-bin2hex.py -w 8 uart_c.bin test.hex
+$ python freedom-bin2hex.py -w 8 uart_c.bin test.hex
   ```
 
 Run
@@ -278,7 +278,7 @@ $ make
 CONVERT (for example, ADD instruction test to hex)
 ```
 $ riscv64-unknown-elf-objcopy -O binary rv32ui-p-add rv32ui-p-add.bin
-$ freedom-bin2hex.py -w 8 rv32ui-p-add.bin rv32ui-p-add.hex .
+$ python freedom-bin2hex.py -w 8 rv32ui-p-add.bin rv32ui-p-add.hex .
 ```
 
 Checking ASFRV32IM with rv32ui-p-add.hex andrv32ui-p-add.dump
@@ -356,7 +356,7 @@ $ cd dhrystone
 $ patch -p1 < ../dhrystone.patch
 $ make
 $ riscv64-unknown-elf-objcopy -O binary coremark.bin tmp.bin
-$ freedom-bin2hex.py -w 8 tmp.bin coremark.hex
+$ pythton ../freedom-bin2hex.py -w 8 tmp.bin coremark.hex
 $ cp coremark.hex ../test.hex
   ```
 
