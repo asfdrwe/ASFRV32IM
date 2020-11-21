@@ -356,7 +356,7 @@ $ cd dhrystone
 $ patch -p1 < ../dhrystone.patch
 $ make
 $ riscv64-unknown-elf-objcopy -O binary dhrystone dhrystone.bin
-$ pythton ../freedom-bin2hex.py -w 8 dhrystone.bin dhrystone.hex
+$ python ../freedom-bin2hex.py -w 8 dhrystone.bin dhrystone.hex
 $ cp dhrystone.hex ../test.hex
   ```
 
