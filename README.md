@@ -355,9 +355,9 @@ $ cp -a (riscv-tests dir)/benchmark/dhrystone dhrystone
 $ cd dhrystone
 $ patch -p1 < ../dhrystone.patch
 $ make
-$ riscv64-unknown-elf-objcopy -O binary coremark.bin tmp.bin
-$ pythton ../freedom-bin2hex.py -w 8 tmp.bin coremark.hex
-$ cp coremark.hex ../test.hex
+$ riscv64-unknown-elf-objcopy -O binary dhrystone dhrystone.bin
+$ pythton ../freedom-bin2hex.py -w 8 dhrystone.bin dhrystone.hex
+$ cp dhrystone.hex ../test.hex
   ```
 
 Run
