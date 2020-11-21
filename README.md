@@ -44,7 +44,7 @@ git clone https://github.com/asfdrwe/ASFRV32IM.git
 ## Synthesis
   ```
 iverilog -o RV32IM RV32IM.v RV32IM_test.v
-iverilog -o RV32IM_coremark RV32I.v RV32IM_coremark_test.v
+iverilog -o RV32IM_coremark RV32IM.v RV32IM_coremark_test.v
   ```
   
 ## Run as cpu dump mode
