@@ -267,8 +267,8 @@ You need [riscv-tests.patch](riscv-tests.patch) for 0 address startup and remova
 $ patch -p1 < (ASFRV32IM dir)/riscv-tests.patch
   ```
 
-\*.hex in [test](test/)  are hex format riscv-tests for ASFRV32IM.
-\*.dump in [test](test/) are deassembled riscv-tests programs.
+- \*.hex in [test](test/) are precompiled and hex format converted riscv-tests for ASFRV32IM.
+- \*.dump in [test](test/) are deassembled riscv-tests programs.
 
 BUILD
 ```
