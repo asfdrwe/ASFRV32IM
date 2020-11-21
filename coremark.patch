@@ -1,0 +1,209 @@
+diff -uNr coremark.orig/Makefile coremark/Makefile
+--- coremark.orig/Makefile	2020-11-12 14:18:12.220092888 +0900
++++ coremark/Makefile	2020-11-12 17:04:40.921862098 +0900
+@@ -58,7 +58,7 @@
+ 
+ CORE_FILES = core_list_join core_main core_matrix core_state core_util
+ ORIG_SRCS = $(addsuffix .c,$(CORE_FILES))
+-SRCS = $(ORIG_SRCS) $(PORT_SRCS)
++SRCS = $(PORT_SRCS) $(ORIG_SRCS) 
+ OBJS = $(addprefix $(OPATH),$(addsuffix $(OEXT),$(CORE_FILES)) $(PORT_OBJS))
+ OUTNAME = coremark$(EXE)
+ OUTFILE = $(OPATH)$(OUTNAME)
+diff -uNr coremark.orig/barebones/core_portme.c coremark/barebones/core_portme.c
+--- coremark.orig/barebones/core_portme.c	2020-11-12 14:18:12.221092888 +0900
++++ coremark/barebones/core_portme.c	2020-11-12 17:41:18.188031305 +0900
+@@ -44,8 +44,10 @@
+ CORETIMETYPE
+ barebones_clock()
+ {
+-#error \
+-    "You must implement a method to measure time in barebones_clock()! This function should return current time.\n"
++  int *i = (int*)0xfff4; // COUNTER ADDRESS
++  unsigned int r;
++  asm volatile ("lw %0, (%1)" : "=r"(r) : "r"(i) );
++  return r;
+ }
+ /* Define : TIMER_RES_DIVIDER
+         Divider to trade off timer resolution and total time that can be
+@@ -59,6 +61,7 @@
+ #define MYTIMEDIFF(fin, ini)       ((fin) - (ini))
+ #define TIMER_RES_DIVIDER          1
+ #define SAMPLE_TIME_IMPLEMENTATION 1
++#define CLOCKS_PER_SEC		   1000 // 1kHz per cycle
+ #define EE_TICKS_PER_SEC           (CLOCKS_PER_SEC / TIMER_RES_DIVIDER)
+ 
+ /** Define Host specific (POSIX), or target specific global time variables. */
+@@ -129,8 +132,6 @@
+ void
+ portable_init(core_portable *p, int *argc, char *argv[])
+ {
+-#error \
+-    "Call board initialization routines in portable init (if needed), in particular initialize UART!\n"
+     if (sizeof(ee_ptr_int) != sizeof(ee_u8 *))
+     {
+         ee_printf(
+@@ -142,6 +143,7 @@
+         ee_printf("ERROR! Please define ee_u32 to a 32b unsigned type!\n");
+     }
+     p->portable_id = 1;
++    ee_printf("INIT\n");
+ }
+ /* Function : portable_fini
+         Target specific final code
+@@ -150,4 +152,5 @@
+ portable_fini(core_portable *p)
+ {
+     p->portable_id = 0;
++    ee_printf("FINISH\n");
+ }
+diff -uNr coremark.orig/barebones/core_portme.h coremark/barebones/core_portme.h
+--- coremark.orig/barebones/core_portme.h	2020-11-12 14:18:12.221092888 +0900
++++ coremark/barebones/core_portme.h	2020-11-12 17:04:40.922862098 +0900
+@@ -21,6 +21,9 @@
+ */
+ #ifndef CORE_PORTME_H
+ #define CORE_PORTME_H
++
++#include <stddef.h>
++
+ /************************/
+ /* Data types and settings */
+ /************************/
+@@ -28,21 +31,21 @@
+         Define to 1 if the platform supports floating point.
+ */
+ #ifndef HAS_FLOAT
+-#define HAS_FLOAT 1
++#define HAS_FLOAT 0
+ #endif
+ /* Configuration : HAS_TIME_H
+         Define to 1 if platform has the time.h header file,
+         and implementation of functions thereof.
+ */
+ #ifndef HAS_TIME_H
+-#define HAS_TIME_H 1
++#define HAS_TIME_H 0
+ #endif
+ /* Configuration : USE_CLOCK
+         Define to 1 if platform has the time.h header file,
+         and implementation of functions thereof.
+ */
+ #ifndef USE_CLOCK
+-#define USE_CLOCK 1
++#define USE_CLOCK 0
+ #endif
+ /* Configuration : HAS_STDIO
+         Define to 1 if the platform has stdio.h.
+@@ -166,7 +169,7 @@
+    greater then 1.
+ */
+ #ifndef MAIN_HAS_NOARGC
+-#define MAIN_HAS_NOARGC 0
++#define MAIN_HAS_NOARGC 1
+ #endif
+ 
+ /* Configuration : MAIN_HAS_NORETURN
+diff -uNr coremark.orig/barebones/core_portme.mak coremark/barebones/core_portme.mak
+--- coremark.orig/barebones/core_portme.mak	2020-11-12 14:18:12.221092888 +0900
++++ coremark/barebones/core_portme.mak	2020-11-12 19:47:16.397504510 +0900
+@@ -14,29 +14,36 @@
+ # 
+ # Original Author: Shay Gal-on
+ 
++# Modified by asfdrwe <asfdrwe@gmail.com>
++# Copyright (c) 2020 asfdrwe <asfdrwe@gmail.com>
++
+ #File : core_portme.mak
+ 
++# Flag: RISCVTYPE
++#   Type of toolchain to use
++RISCVTYPE=riscv64-unknown-elf
++
+ # Flag : OUTFLAG
+ #	Use this flag to define how to to get an executable (e.g -o)
+ OUTFLAG= -o
+ # Flag : CC
+ #	Use this flag to define compiler to use
+-CC 		= gcc
++CC 		= $(RISCVTYPE)-gcc
+ # Flag : LD
+ #	Use this flag to define compiler to use
+-LD		= gld
++LD		= $(RISCVTYPE)-ld
+ # Flag : AS
+ #	Use this flag to define compiler to use
+-AS		= gas
++AS		= $(RISCVTYPE)-as
+ # Flag : CFLAGS
+ #	Use this flag to define compiler options. Note, you can add compiler options from the command line using XCFLAGS="other flags"
+-PORT_CFLAGS = -O0 -g
++PORT_CFLAGS = -O2 -fno-builtin -march=rv32g -mabi=ilp32 -nostdlib -nostartfiles -T $(PORT_DIR)/link.ld
+ FLAGS_STR = "$(PORT_CFLAGS) $(XCFLAGS) $(XLFLAGS) $(LFLAGS_END)"
+ CFLAGS = $(PORT_CFLAGS) -I$(PORT_DIR) -I. -DFLAGS_STR=\"$(FLAGS_STR)\" 
+ #Flag : LFLAGS_END
+ #	Define any libraries needed for linking or other flags that should come at the end of the link line (e.g. linker scripts). 
+ #	Note : On certain platforms, the default clock_gettime implementation is supported but requires linking of librt.
+-SEPARATE_COMPILE=1
++# SEPARATE_COMPILE=1
+ # Flag : SEPARATE_COMPILE
+ # You must also define below how to create an object file, and how to link.
+ OBJOUT 	= -o
+@@ -49,7 +56,7 @@
+ # Flag : PORT_SRCS
+ # 	Port specific source files can be added here
+ #	You may also need cvt.c if the fcvt functions are not provided as intrinsics by your compiler!
+-PORT_SRCS = $(PORT_DIR)/core_portme.c $(PORT_DIR)/ee_printf.c
++PORT_SRCS = $(PORT_DIR)/start.S $(PORT_DIR)/core_portme.c $(PORT_DIR)/ee_printf.c
+ vpath %.c $(PORT_DIR)
+ vpath %.s $(PORT_DIR)
+ 
+diff -uNr coremark.orig/barebones/ee_printf.c coremark/barebones/ee_printf.c
+--- coremark.orig/barebones/ee_printf.c	2020-11-12 14:18:12.222092888 +0900
++++ coremark/barebones/ee_printf.c	2020-11-12 17:04:40.924862098 +0900
+@@ -662,7 +662,10 @@
+ void
+ uart_send_char(char c)
+ {
+-#error "You must implement the method uart_send_char to use this file!\n";
++  int *i = (int*)0xfff0; // UART ADDRESS
++
++  asm volatile ("sb %0, (%1)" : : "r"(c), "r"(i) );
++
+     /*	Output of a char to a UART usually follows the following model:
+             Wait until UART is ready
+             Write char to UART
+diff -uNr coremark.orig/barebones/link.ld coremark/barebones/link.ld
+--- coremark.orig/barebones/link.ld	1970-01-01 09:00:00.000000000 +0900
++++ coremark/barebones/link.ld	2020-11-12 17:04:40.924862098 +0900
+@@ -0,0 +1,19 @@
++OUTPUT_ARCH( "riscv" )
++ENTRY(_start)
++
++SECTIONS
++{
++  . = 0x00000000;
++  .text.init : { *(.text.init) }
++  . = ALIGN(0x0100);
++  .tohost : { *(.tohost) }
++  . = ALIGN(0x0100);
++  .text : { *(.text) }
++  . = ALIGN(0x0100);
++  .sbss : { *(.sbss) }
++  .bss : { *(.bss) }
++  .sdata : { *(.sdata) }
++  .data : { *(.data) }
++  _end = .;
++}
++
+diff -uNr coremark.orig/barebones/start.S coremark/barebones/start.S
+--- coremark.orig/barebones/start.S	1970-01-01 09:00:00.000000000 +0900
++++ coremark/barebones/start.S	2020-11-12 17:04:40.925862098 +0900
+@@ -0,0 +1,7 @@
++.globl _start
++
++_start:
++  li sp, 0xff00
++  jal main
++_loop:
++  jal _loop

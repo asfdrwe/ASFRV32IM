@@ -1,0 +1,81 @@
+
+rv32ui-p-jal:     file format elf32-littleriscv
+
+
+Disassembly of section .text.init:
+
+00000000 <_start>:
+   0:	00200193          	li	gp,2
+   4:	00000093          	li	ra,0
+   8:	0100026f          	jal	tp,18 <target_2>
+
+0000000c <linkaddr_2>:
+   c:	00000013          	nop
+  10:	00000013          	nop
+  14:	0400006f          	j	54 <fail>
+
+00000018 <target_2>:
+  18:	00000117          	auipc	sp,0x0
+  1c:	ff410113          	addi	sp,sp,-12 # c <linkaddr_2>
+  20:	02411a63          	bne	sp,tp,54 <fail>
+
+00000024 <test_3>:
+  24:	00100093          	li	ra,1
+  28:	0140006f          	j	3c <test_3+0x18>
+  2c:	00108093          	addi	ra,ra,1
+  30:	00108093          	addi	ra,ra,1
+  34:	00108093          	addi	ra,ra,1
+  38:	00108093          	addi	ra,ra,1
+  3c:	00108093          	addi	ra,ra,1
+  40:	00108093          	addi	ra,ra,1
+  44:	00300393          	li	t2,3
+  48:	00300193          	li	gp,3
+  4c:	00709463          	bne	ra,t2,54 <fail>
+  50:	02301063          	bne	zero,gp,70 <pass>
+
+00000054 <fail>:
+  54:	0ff0000f          	fence
+  58:	00018063          	beqz	gp,58 <fail+0x4>
+  5c:	00119193          	slli	gp,gp,0x1
+  60:	0011e193          	ori	gp,gp,1
+  64:	05d00893          	li	a7,93
+  68:	00018513          	mv	a0,gp
+  6c:	00000073          	ecall
+
+00000070 <pass>:
+  70:	0ff0000f          	fence
+  74:	00100193          	li	gp,1
+  78:	05d00893          	li	a7,93
+  7c:	00000513          	li	a0,0
+  80:	00000073          	ecall
+  84:	c0001073          	unimp
+  88:	0000                	unimp
+  8a:	0000                	unimp
+  8c:	0000                	unimp
+  8e:	0000                	unimp
+  90:	0000                	unimp
+  92:	0000                	unimp
+  94:	0000                	unimp
+  96:	0000                	unimp
+  98:	0000                	unimp
+  9a:	0000                	unimp
+  9c:	0000                	unimp
+  9e:	0000                	unimp
+  a0:	0000                	unimp
+  a2:	0000                	unimp
+  a4:	0000                	unimp
+  a6:	0000                	unimp
+  a8:	0000                	unimp
+  aa:	0000                	unimp
+  ac:	0000                	unimp
+  ae:	0000                	unimp
+  b0:	0000                	unimp
+  b2:	0000                	unimp
+  b4:	0000                	unimp
+  b6:	0000                	unimp
+  b8:	0000                	unimp
+  ba:	0000                	unimp
+  bc:	0000                	unimp
+  be:	0000                	unimp
+  c0:	0000                	unimp
+  c2:	0000                	unimp
