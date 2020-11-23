@@ -37,23 +37,23 @@ IN THE SOFTWARE.
 I checked on Linux only.
 
 ## Getting started
-```
-git clone https://github.com/asfdrwe/ASFRV32IM.git
-```
+  ```
+$ git clone https://github.com/asfdrwe/ASFRV32IM.git
+  ```
 
 ## Synthesis
   ```
-iverilog -o RV32IM RV32IM.v RV32IM_test.v
-iverilog -o RV32IM_coremark RV32IM.v RV32IM_coremark_test.v
+$ iverilog -o RV32IM RV32IM.v RV32IM_test.v
+$ iverilog -o RV32IM_coremark RV32IM.v RV32IM_coremark_test.v
   ```
   
 ## Run as cpu dump mode
   ```
-./RV32IM
+$ ./RV32IM
   ```
 ## Run as uart mode
   ```
-./RV32IM_coremark
+$ ./RV32IM_coremark
   ```
 
 ## How to write a program for ASFRV32IM (test.hex)
