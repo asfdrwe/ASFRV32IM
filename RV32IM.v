@@ -50,22 +50,22 @@ module RV32IM(input wire clock, input wire reset_n, output wire [31:0] pc_out, o
   assign r_addr2 = opcode[24:20];
   assign w_addr =  opcode[11:7];
 
-  wire [31:0] i_sext, s_sext, sb_sext, u_sext, uj_sext;
+  assign imm[31:20] = ((op == UFORMAT_LUI) || (op == UFORMAT_AUIPC)) ? opcode[31:20] : 
+		      (opcode[31] == 1'b1) ? 12'hfff : 12'b0;
+  assign imm[19:12] = ((op == UFORMAT_LUI) || (op == UFORMAT_AUIPC) || (op == UJFORMAT)) ? opcode[19:12] :
+                      (opcode[31] == 1'b1) ? 8'hff : 8'b0;
+  assign imm[11] = (op == SBFORMAT) ? opcode[7] :
+                   ((op == UFORMAT_LUI) || (op == UFORMAT_AUIPC)) ? 1'b0 :
+                   (op == UJFORMAT) ? opcode[20] : opcode[31];
+  assign imm[10:5] = ((op == UFORMAT_LUI) || (op == UFORMAT_AUIPC)) ? 6'b0 : opcode[30:25];
+  assign imm[4:1] = ((op == IFORMAT_ALU) || (op == IFORMAT_LOAD) || (op == IFORMAT_JALR) || (op == UJFORMAT)) ? opcode[24:21] :
+		    ((op == SFORMAT) || (op == SBFORMAT)) ? opcode[11:8] : 4'b0;
+  assign imm[0] = ((op == IFORMAT_ALU) || (op == IFORMAT_LOAD) || (op == IFORMAT_JALR)) ? opcode[20] :
+		  (op == SFORMAT) ? opcode[7] : 1'b0;
 
-  assign i_sext = ((op == IFORMAT_ALU) && ((opcode[14:12] == 3'b001) || (opcode[14:12] == 3'b101))) ? {27'b0, opcode[24:20]} :  // SLLI or SRLI or SRAI
-                                                                           (opcode[31] == 1'b1) ? {20'hfffff, opcode[31:20]} : {20'h00000, opcode[31:20]};
-  assign s_sext = (opcode[31] == 1'b1) ? {20'hfffff, opcode[31:25],opcode[11:7]} : {20'h00000, opcode[31:25],opcode[11:7]};
-  assign sb_sext = (opcode[31] == 1'b1) ? {19'h7ffff, opcode[31], opcode[7], opcode[30:25], opcode[11:8], 1'b0} : {19'h00000, opcode[31], opcode[7], opcode[30:25], opcode[11:8], 1'b0};
-  assign u_sext = {opcode[31:12], 12'b0};
-  assign uj_sext = (opcode[31] == 1'b1) ? {11'h7ff, opcode[31], opcode[19:12], opcode[20], opcode[30:21], 1'b0} : {11'h000, opcode[31], opcode[19:12], opcode[20], opcode[30:21], 1'b0};
-  assign imm = ((op == IFORMAT_ALU) || (op == IFORMAT_LOAD) || (op == IFORMAT_JALR))  ? i_sext :
-                (op == SFORMAT)        ? s_sext :
-                (op == SBFORMAT)       ? sb_sext :
-               ((op == UFORMAT_LUI) || (op == UFORMAT_AUIPC)) ? u_sext :
-                (op == UJFORMAT)       ? uj_sext : 32'b0;
   assign alucon = ((op == RFORMAT) || (op == MULDIV)) ? {opcode[30], opcode[25], opcode[14:12]} :
-                  (op == IFORMAT_ALU) ? ((opcode[14:12] == 3'b101) ? {opcode[30], opcode[25], opcode[14:12]} : // SRLI or SRAI
-                                        {2'b00, opcode[14:12]}) : 5'b0;
+                  ((op == IFORMAT_ALU) && (opcode[14:12] == 3'b101)) ? {opcode[30], opcode[25], opcode[14:12]} : // SRLI or SRAI
+                  (op == IFORMAT_ALU) ? {2'b00, opcode[14:12]} : 5'b0;
   assign funct3 = opcode[14:12];
   assign op1sel = ((op == SBFORMAT) || (op == UFORMAT_AUIPC) || (op == UJFORMAT)) ? 1'b1 : 1'b0;
   assign op2sel = ((op == RFORMAT) || (op == MULDIV)) ? 1'b0 : 1'b1;
@@ -163,12 +163,10 @@ module RV32IM(input wire clock, input wire reset_n, output wire [31:0] pc_out, o
         BRANCH_EXEC = (data1 == data2) ? 1'b1 : 1'b0;
       3'b001: // BNE
         BRANCH_EXEC = (data1 != data2) ? 1'b1 : 1'b0;
-      3'b100: begin // BLT
+      3'b100: // BLT
         BRANCH_EXEC = ($signed(data1) < $signed(data2)) ? 1'b1 : 1'b0;
-      end
-      3'b101: begin // BGE
+      3'b101: // BGE
         BRANCH_EXEC = ($signed(data1) >= $signed(data2)) ? 1'b1 : 1'b0;
-      end
       3'b110: // BLTU
         BRANCH_EXEC = (data1 < data2) ? 1'b1 : 1'b0;
       3'b111: // BGEU
