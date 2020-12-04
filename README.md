@@ -30,6 +30,9 @@ IN THE SOFTWARE.
   ```
 
 ## Changelog
+- 20201204
+fixed uart handling
+
 - 20201127
 replace simpler implementation of IMM Sign Extender based on RISC-V specification page 17.
 ![imm](images/imm.png)

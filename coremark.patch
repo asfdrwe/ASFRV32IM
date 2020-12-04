@@ -1,6 +1,6 @@
 diff -uNr coremark.orig/Makefile coremark/Makefile
---- coremark.orig/Makefile	2020-11-12 14:18:12.220092888 +0900
-+++ coremark/Makefile	2020-11-12 17:04:40.921862098 +0900
+--- coremark.orig/Makefile	2020-12-04 21:46:26.519006499 +0900
++++ coremark/Makefile	2020-12-04 21:54:59.958006742 +0900
 @@ -58,7 +58,7 @@
  
  CORE_FILES = core_list_join core_main core_matrix core_state core_util
@@ -11,8 +11,8 @@ diff -uNr coremark.orig/Makefile coremark/Makefile
  OUTNAME = coremark$(EXE)
  OUTFILE = $(OPATH)$(OUTNAME)
 diff -uNr coremark.orig/barebones/core_portme.c coremark/barebones/core_portme.c
---- coremark.orig/barebones/core_portme.c	2020-11-12 14:18:12.221092888 +0900
-+++ coremark/barebones/core_portme.c	2020-11-12 17:41:18.188031305 +0900
+--- coremark.orig/barebones/core_portme.c	2020-12-04 21:46:26.522006499 +0900
++++ coremark/barebones/core_portme.c	2020-12-04 21:54:59.959006742 +0900
 @@ -44,8 +44,10 @@
  CORETIMETYPE
  barebones_clock()
@@ -58,8 +58,8 @@ diff -uNr coremark.orig/barebones/core_portme.c coremark/barebones/core_portme.c
 +    ee_printf("FINISH\n");
  }
 diff -uNr coremark.orig/barebones/core_portme.h coremark/barebones/core_portme.h
---- coremark.orig/barebones/core_portme.h	2020-11-12 14:18:12.221092888 +0900
-+++ coremark/barebones/core_portme.h	2020-11-12 17:04:40.922862098 +0900
+--- coremark.orig/barebones/core_portme.h	2020-12-04 21:46:26.523006499 +0900
++++ coremark/barebones/core_portme.h	2020-12-04 21:54:59.959006742 +0900
 @@ -21,6 +21,9 @@
  */
  #ifndef CORE_PORTME_H
@@ -105,8 +105,8 @@ diff -uNr coremark.orig/barebones/core_portme.h coremark/barebones/core_portme.h
  
  /* Configuration : MAIN_HAS_NORETURN
 diff -uNr coremark.orig/barebones/core_portme.mak coremark/barebones/core_portme.mak
---- coremark.orig/barebones/core_portme.mak	2020-11-12 14:18:12.221092888 +0900
-+++ coremark/barebones/core_portme.mak	2020-11-12 19:47:16.397504510 +0900
+--- coremark.orig/barebones/core_portme.mak	2020-12-04 21:46:26.523006499 +0900
++++ coremark/barebones/core_portme.mak	2020-12-04 21:54:59.960006742 +0900
 @@ -14,29 +14,36 @@
  # 
  # Original Author: Shay Gal-on
@@ -159,23 +159,24 @@ diff -uNr coremark.orig/barebones/core_portme.mak coremark/barebones/core_portme
  vpath %.s $(PORT_DIR)
  
 diff -uNr coremark.orig/barebones/ee_printf.c coremark/barebones/ee_printf.c
---- coremark.orig/barebones/ee_printf.c	2020-11-12 14:18:12.222092888 +0900
-+++ coremark/barebones/ee_printf.c	2020-11-12 17:04:40.924862098 +0900
-@@ -662,7 +662,10 @@
+--- coremark.orig/barebones/ee_printf.c	2020-12-04 21:46:26.524006499 +0900
++++ coremark/barebones/ee_printf.c	2020-12-04 22:01:06.479000086 +0900
+@@ -662,7 +662,11 @@
  void
  uart_send_char(char c)
  {
 -#error "You must implement the method uart_send_char to use this file!\n";
-+  int *i = (int*)0xfff0; // UART ADDRESS
++  volatile char *c1 = (char*)0xfff0; // UART DATA ADDRESS
++  volatile char *c2 = (char*)0xfff1; // UART FLAG ADDRESS
 +
-+  asm volatile ("sb %0, (%1)" : : "r"(c), "r"(i) );
-+
++  while (*c2 != 1) {} // loop unless UART FLAG = 1
++  *c1 = c;
      /*	Output of a char to a UART usually follows the following model:
              Wait until UART is ready
              Write char to UART
 diff -uNr coremark.orig/barebones/link.ld coremark/barebones/link.ld
 --- coremark.orig/barebones/link.ld	1970-01-01 09:00:00.000000000 +0900
-+++ coremark/barebones/link.ld	2020-11-12 17:04:40.924862098 +0900
++++ coremark/barebones/link.ld	2020-12-04 21:54:59.961006742 +0900
 @@ -0,0 +1,19 @@
 +OUTPUT_ARCH( "riscv" )
 +ENTRY(_start)
@@ -198,7 +199,7 @@ diff -uNr coremark.orig/barebones/link.ld coremark/barebones/link.ld
 +
 diff -uNr coremark.orig/barebones/start.S coremark/barebones/start.S
 --- coremark.orig/barebones/start.S	1970-01-01 09:00:00.000000000 +0900
-+++ coremark/barebones/start.S	2020-11-12 17:04:40.925862098 +0900
++++ coremark/barebones/start.S	2020-12-04 21:54:59.962006742 +0900
 @@ -0,0 +1,7 @@
 +.globl _start
 +

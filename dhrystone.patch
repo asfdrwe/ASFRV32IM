@@ -1,6 +1,6 @@
 diff -uNr dhrystone.orig/Makefile dhrystone/Makefile
 --- dhrystone.orig/Makefile	1970-01-01 09:00:00.000000000 +0900
-+++ dhrystone/Makefile	2020-11-15 21:34:28.142365512 +0900
++++ dhrystone/Makefile	2020-12-04 21:59:31.106000040 +0900
 @@ -0,0 +1,4 @@
 +all: start.S dhrystone.c dhrystone.h dhrystone_main.c ee_printf.c
 +	riscv64-unknown-elf-gcc -I. -DBAREBONES=1 -o dhrystone -O2 -fno-builtin -march=rv32g -mabi=ilp32 -nostdlib -nostartfiles -T link.ld start.S dhrystone.c dhrystone_main.c ee_printf.c
@@ -8,13 +8,13 @@ diff -uNr dhrystone.orig/Makefile dhrystone/Makefile
 +	-rm -f dhrystone
 diff -uNr dhrystone.orig/README.md dhrystone/README.md
 --- dhrystone.orig/README.md	1970-01-01 09:00:00.000000000 +0900
-+++ dhrystone/README.md	2020-11-14 16:48:27.186500451 +0900
++++ dhrystone/README.md	2020-12-04 21:59:31.106000040 +0900
 @@ -0,0 +1,2 @@
 +This code is based on https://github.com/riscv/riscv-tests/tree/master/benchmarks/
 +and https://github.com/eembc/coremark/tree/master/barebones/{core_portme.c,ee_printf.c}
 diff -uNr dhrystone.orig/dhrystone.c dhrystone/dhrystone.c
---- dhrystone.orig/dhrystone.c	2020-11-15 21:36:31.790359469 +0900
-+++ dhrystone/dhrystone.c	2020-11-14 16:39:57.395525366 +0900
+--- dhrystone.orig/dhrystone.c	2020-11-04 15:38:58.034505122 +0900
++++ dhrystone/dhrystone.c	2020-12-04 21:59:31.106000040 +0900
 @@ -180,6 +180,8 @@
      return (false);
  } /* Func_3 */
@@ -25,8 +25,8 @@ diff -uNr dhrystone.orig/dhrystone.c dhrystone/dhrystone.c
  }
 +#endif
 diff -uNr dhrystone.orig/dhrystone.h dhrystone/dhrystone.h
---- dhrystone.orig/dhrystone.h	2020-11-15 21:36:31.790359469 +0900
-+++ dhrystone/dhrystone.h	2020-11-14 17:08:43.456441007 +0900
+--- dhrystone.orig/dhrystone.h	2020-11-04 15:38:58.034505122 +0900
++++ dhrystone/dhrystone.h	2020-12-04 21:59:31.107000040 +0900
 @@ -355,6 +355,21 @@
  
  /* variables for time measurement: */
@@ -72,8 +72,8 @@ diff -uNr dhrystone.orig/dhrystone.h dhrystone/dhrystone.h
  
  #define Null 0 
 diff -uNr dhrystone.orig/dhrystone_main.c dhrystone/dhrystone_main.c
---- dhrystone.orig/dhrystone_main.c	2020-11-15 21:36:31.791359469 +0900
-+++ dhrystone/dhrystone_main.c	2020-11-14 19:31:12.778726903 +0900
+--- dhrystone.orig/dhrystone_main.c	2020-11-04 15:38:58.035505122 +0900
++++ dhrystone/dhrystone_main.c	2020-12-04 21:59:31.108000040 +0900
 @@ -11,10 +11,6 @@
  
  #include "dhrystone.h"
@@ -139,8 +139,8 @@ diff -uNr dhrystone.orig/dhrystone_main.c dhrystone/dhrystone_main.c
  
 diff -uNr dhrystone.orig/ee_printf.c dhrystone/ee_printf.c
 --- dhrystone.orig/ee_printf.c	1970-01-01 09:00:00.000000000 +0900
-+++ dhrystone/ee_printf.c	2020-11-14 16:45:43.040508473 +0900
-@@ -0,0 +1,721 @@
++++ dhrystone/ee_printf.c	2020-12-04 22:01:42.225000103 +0900
+@@ -0,0 +1,723 @@
 +/*
 +Copyright 2018 Embedded Microprocessor Benchmark Consortium (EEMBC)
 +
@@ -837,9 +837,11 @@ diff -uNr dhrystone.orig/ee_printf.c dhrystone/ee_printf.c
 +void
 +uart_send_char(char c)
 +{
-+  int *i = (int*)0xfff0; // UART ADDRESS
++  volatile char *c1 = (char*)0xfff0; // UART DATA ADDRESS
++  volatile char *c2 = (char*)0xfff1; // UART FLAG ADDRESS
 +
-+  asm volatile ("sb %0, (%1)" : : "r"(c), "r"(i) );
++  while (*c2 != 1) {} // loop unless UART FLAG = 1
++  *c1 = c;
 +}
 +
 +int
@@ -864,7 +866,7 @@ diff -uNr dhrystone.orig/ee_printf.c dhrystone/ee_printf.c
 +}
 diff -uNr dhrystone.orig/link.ld dhrystone/link.ld
 --- dhrystone.orig/link.ld	1970-01-01 09:00:00.000000000 +0900
-+++ dhrystone/link.ld	2020-11-14 16:18:13.520589092 +0900
++++ dhrystone/link.ld	2020-12-04 21:59:31.111000040 +0900
 @@ -0,0 +1,19 @@
 +OUTPUT_ARCH( "riscv" )
 +ENTRY(_start)
@@ -887,7 +889,7 @@ diff -uNr dhrystone.orig/link.ld dhrystone/link.ld
 +
 diff -uNr dhrystone.orig/start.S dhrystone/start.S
 --- dhrystone.orig/start.S	1970-01-01 09:00:00.000000000 +0900
-+++ dhrystone/start.S	2020-11-14 16:18:16.800588931 +0900
++++ dhrystone/start.S	2020-12-04 21:59:31.111000040 +0900
 @@ -0,0 +1,7 @@
 +.globl _start
 +

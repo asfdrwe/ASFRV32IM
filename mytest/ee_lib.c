@@ -480,9 +480,11 @@ unsigned int barebones_clock()
 void
 uart_send_char(char c)
 {
-  int *i = (int*)0xfff0; // UART ADDRESS
+  char *c1 = (char*)0xfff0; // UART DATA ADDRESS
+  char *c2 = (char*)0xfff1; // UART FLAG ADDRESS
 
-  asm volatile ("sb %0, (%1)" : : "r"(c), "r"(i) );
+  while (*c2 != 1) {} // loop unless UART FLAG = 1
+  *c1 = c;
 }
 
 int
