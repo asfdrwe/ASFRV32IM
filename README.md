@@ -30,6 +30,9 @@ IN THE SOFTWARE.
   ```
 
 ## Changelog
+- 20210308
+removed the unnecessary wire bit of r_addr1, r_addr2, w_addr
+
 - 20201204
 fixed uart handling
 
