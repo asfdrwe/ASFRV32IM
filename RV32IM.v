@@ -24,7 +24,7 @@ module RV32IM(input wire clock, input wire reset_n, output wire [31:0] pc_out, o
   assign op_out = opcode; // for DEBUG
 
   // DECODE
-  wire [5:0] r_addr1, r_addr2, w_addr;
+  wire [4:0] r_addr1, r_addr2, w_addr;
   wire [31:0] imm;
   wire [4:0] alucon;
   wire [2:0] funct3;
