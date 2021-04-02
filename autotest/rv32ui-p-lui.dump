@@ -1,0 +1,98 @@
+
+rv32ui-p-lui:     ファイル形式 elf32-littleriscv
+
+
+セクション .text.init の逆アセンブル:
+
+00000000 <_start>:
+   0:	000000b7          	lui	ra,0x0
+   4:	00000393          	li	t2,0
+   8:	00200193          	li	gp,2
+   c:	04709a63          	bne	ra,t2,60 <fail>
+
+00000010 <test_3>:
+  10:	fffff0b7          	lui	ra,0xfffff
+  14:	4010d093          	srai	ra,ra,0x1
+  18:	80000393          	li	t2,-2048
+  1c:	00300193          	li	gp,3
+  20:	04709063          	bne	ra,t2,60 <fail>
+
+00000024 <test_4>:
+  24:	7ffff0b7          	lui	ra,0x7ffff
+  28:	4140d093          	srai	ra,ra,0x14
+  2c:	7ff00393          	li	t2,2047
+  30:	00400193          	li	gp,4
+  34:	02709663          	bne	ra,t2,60 <fail>
+
+00000038 <test_5>:
+  38:	800000b7          	lui	ra,0x80000
+  3c:	4140d093          	srai	ra,ra,0x14
+  40:	80000393          	li	t2,-2048
+  44:	00500193          	li	gp,5
+  48:	00709c63          	bne	ra,t2,60 <fail>
+
+0000004c <test_6>:
+  4c:	80000037          	lui	zero,0x80000
+  50:	00000393          	li	t2,0
+  54:	00600193          	li	gp,6
+  58:	00701463          	bne	zero,t2,60 <fail>
+  5c:	04301263          	bne	zero,gp,a0 <pass>
+
+00000060 <fail>:
+  60:	0ff0000f          	fence
+  64:	00018063          	beqz	gp,64 <fail+0x4>
+  68:	00119193          	slli	gp,gp,0x1
+  6c:	0011e193          	ori	gp,gp,1
+  70:	05d00893          	li	a7,93
+  74:	00018513          	mv	a0,gp
+  78:	000105b7          	lui	a1,0x10
+  7c:	ff058593          	addi	a1,a1,-16 # fff0 <_end+0xdff0>
+  80:	04600613          	li	a2,70
+  84:	00c58023          	sb	a2,0(a1)
+  88:	00000013          	nop
+  8c:	00000013          	nop
+  90:	00000013          	nop
+  94:	00a00613          	li	a2,10
+  98:	00c58023          	sb	a2,0(a1)
+  9c:	0340006f          	j	d0 <__loop>
+
+000000a0 <pass>:
+  a0:	0ff0000f          	fence
+  a4:	00100193          	li	gp,1
+  a8:	000105b7          	lui	a1,0x10
+  ac:	ff058593          	addi	a1,a1,-16 # fff0 <_end+0xdff0>
+  b0:	05000613          	li	a2,80
+  b4:	00c58023          	sb	a2,0(a1)
+  b8:	00000013          	nop
+  bc:	00000013          	nop
+  c0:	00000013          	nop
+  c4:	00a00613          	li	a2,10
+  c8:	00c58023          	sb	a2,0(a1)
+  cc:	0040006f          	j	d0 <__loop>
+
+000000d0 <__loop>:
+  d0:	0000006f          	j	d0 <__loop>
+  d4:	0000                	unimp
+  d6:	0000                	unimp
+  d8:	0000                	unimp
+  da:	0000                	unimp
+  dc:	0000                	unimp
+  de:	0000                	unimp
+  e0:	0000                	unimp
+  e2:	0000                	unimp
+  e4:	0000                	unimp
+  e6:	0000                	unimp
+  e8:	0000                	unimp
+  ea:	0000                	unimp
+  ec:	0000                	unimp
+  ee:	0000                	unimp
+  f0:	0000                	unimp
+  f2:	0000                	unimp
+  f4:	0000                	unimp
+  f6:	0000                	unimp
+  f8:	0000                	unimp
+  fa:	0000                	unimp
+  fc:	0000                	unimp
+  fe:	0000                	unimp
+ 100:	0000                	unimp
+ 102:	0000                	unimp

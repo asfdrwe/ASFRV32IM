@@ -1,0 +1,125 @@
+diff -uNr riscv-tests/env/p/link.ld riscv-tests.new/env/p/link.ld
+--- riscv-tests/env/p/link.ld	2020-12-10 22:58:54.613821678 +0900
++++ riscv-tests.new/env/p/link.ld	2020-12-10 22:28:26.750911012 +0900
+@@ -3,7 +3,7 @@
+ 
+ SECTIONS
+ {
+-  . = 0x80000000;
++  . = 0x00000000;
+   .text.init : { *(.text.init) }
+   . = ALIGN(0x1000);
+   .tohost : { *(.tohost) }
+diff -uNr riscv-tests/env/p/riscv_test.h riscv-tests.new/env/p/riscv_test.h
+--- riscv-tests/env/p/riscv_test.h	2020-12-10 22:58:54.613821678 +0900
++++ riscv-tests.new/env/p/riscv_test.h	2020-12-10 22:51:22.239843787 +0900
+@@ -163,71 +163,14 @@
+         .weak mtvec_handler;                                            \
+         .globl _start;                                                  \
+ _start:                                                                 \
+-        /* reset vector */                                              \
+-        j reset_vector;                                                 \
+-        .align 2;                                                       \
+-trap_vector:                                                            \
+-        /* test whether the test came from pass/fail */                 \
+-        csrr t5, mcause;                                                \
+-        li t6, CAUSE_USER_ECALL;                                        \
+-        beq t5, t6, write_tohost;                                       \
+-        li t6, CAUSE_SUPERVISOR_ECALL;                                  \
+-        beq t5, t6, write_tohost;                                       \
+-        li t6, CAUSE_MACHINE_ECALL;                                     \
+-        beq t5, t6, write_tohost;                                       \
+-        /* if an mtvec_handler is defined, jump to it */                \
+-        la t5, mtvec_handler;                                           \
+-        beqz t5, 1f;                                                    \
+-        jr t5;                                                          \
+-        /* was it an interrupt or an exception? */                      \
+-  1:    csrr t5, mcause;                                                \
+-        bgez t5, handle_exception;                                      \
+-        INTERRUPT_HANDLER;                                              \
+-handle_exception:                                                       \
+-        /* we don't know how to handle whatever the exception was */    \
+-  other_exception:                                                      \
+-        /* some unhandlable exception occurred */                       \
+-  1:    ori TESTNUM, TESTNUM, 1337;                                     \
+-  write_tohost:                                                         \
+-        sw TESTNUM, tohost, t5;                                         \
+-        j write_tohost;                                                 \
+-reset_vector:                                                           \
+-        INIT_XREG;                                                      \
+-        RISCV_MULTICORE_DISABLE;                                        \
+-        INIT_SATP;                                                      \
+-        INIT_PMP;                                                       \
+-        DELEGATE_NO_TRAPS;                                              \
+-        li TESTNUM, 0;                                                  \
+-        la t0, trap_vector;                                             \
+-        csrw mtvec, t0;                                                 \
+-        CHECK_XLEN;                                                     \
+-        /* if an stvec_handler is defined, delegate exceptions to it */ \
+-        la t0, stvec_handler;                                           \
+-        beqz t0, 1f;                                                    \
+-        csrw stvec, t0;                                                 \
+-        li t0, (1 << CAUSE_LOAD_PAGE_FAULT) |                           \
+-               (1 << CAUSE_STORE_PAGE_FAULT) |                          \
+-               (1 << CAUSE_FETCH_PAGE_FAULT) |                          \
+-               (1 << CAUSE_MISALIGNED_FETCH) |                          \
+-               (1 << CAUSE_USER_ECALL) |                                \
+-               (1 << CAUSE_BREAKPOINT);                                 \
+-        csrw medeleg, t0;                                               \
+-1:      csrwi mstatus, 0;                                               \
+-        init;                                                           \
+-        EXTRA_INIT;                                                     \
+-        EXTRA_INIT_TIMER;                                               \
+-        la t0, 1f;                                                      \
+-        csrw mepc, t0;                                                  \
+-        csrr a0, mhartid;                                               \
+-        mret;                                                           \
+-1:
+ 
+ //-----------------------------------------------------------------------
+ // End Macro
+ //-----------------------------------------------------------------------
+ 
+ #define RVTEST_CODE_END                                                 \
+-        unimp
++        __loop:                                                         \
++        j __loop;
+ 
+ //-----------------------------------------------------------------------
+ // Pass/Fail Macro
+@@ -236,9 +179,15 @@
+ #define RVTEST_PASS                                                     \
+         fence;                                                          \
+         li TESTNUM, 1;                                                  \
+-        li a7, 93;                                                      \
+-        li a0, 0;                                                       \
+-        ecall
++        li a1, 0xfff0;                                                  \
++        li a2, 'P';                                                     \
++        sb a2, (a1);                                                    \
++        nop;                                                            \
++        nop;                                                            \
++        nop;                                                            \
++        li a2, '\n';                                                    \
++        sb a2, (a1);                                                    \
++        j __loop;                                                       
+ 
+ #define TESTNUM gp
+ #define RVTEST_FAIL                                                     \
+@@ -248,7 +197,15 @@
+         or TESTNUM, TESTNUM, 1;                                         \
+         li a7, 93;                                                      \
+         addi a0, TESTNUM, 0;                                            \
+-        ecall
++        li a1, 0xfff0;                                                  \
++        li a2, 'F';                                                     \
++        sb a2, (a1);                                                    \
++        nop;                                                            \
++        nop;                                                            \
++        nop;                                                            \
++        li a2, '\n';                                                    \
++        sb a2, (a1);                                                    \
++        j __loop;
+ 
+ //-----------------------------------------------------------------------
+ // Data Section Macro

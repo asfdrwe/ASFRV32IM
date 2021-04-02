@@ -1,0 +1,139 @@
+
+rv32um-p-div:     ファイル形式 elf32-littleriscv
+
+
+セクション .text.init の逆アセンブル:
+
+00000000 <_start>:
+   0:	01400093          	li	ra,20
+   4:	00600113          	li	sp,6
+   8:	0220c733          	div	a4,ra,sp
+   c:	00300393          	li	t2,3
+  10:	00200193          	li	gp,2
+  14:	0c771463          	bne	a4,t2,dc <fail>
+
+00000018 <test_3>:
+  18:	fec00093          	li	ra,-20
+  1c:	00600113          	li	sp,6
+  20:	0220c733          	div	a4,ra,sp
+  24:	ffd00393          	li	t2,-3
+  28:	00300193          	li	gp,3
+  2c:	0a771863          	bne	a4,t2,dc <fail>
+
+00000030 <test_4>:
+  30:	01400093          	li	ra,20
+  34:	ffa00113          	li	sp,-6
+  38:	0220c733          	div	a4,ra,sp
+  3c:	ffd00393          	li	t2,-3
+  40:	00400193          	li	gp,4
+  44:	08771c63          	bne	a4,t2,dc <fail>
+
+00000048 <test_5>:
+  48:	fec00093          	li	ra,-20
+  4c:	ffa00113          	li	sp,-6
+  50:	0220c733          	div	a4,ra,sp
+  54:	00300393          	li	t2,3
+  58:	00500193          	li	gp,5
+  5c:	08771063          	bne	a4,t2,dc <fail>
+
+00000060 <test_6>:
+  60:	800000b7          	lui	ra,0x80000
+  64:	00100113          	li	sp,1
+  68:	0220c733          	div	a4,ra,sp
+  6c:	800003b7          	lui	t2,0x80000
+  70:	00600193          	li	gp,6
+  74:	06771463          	bne	a4,t2,dc <fail>
+
+00000078 <test_7>:
+  78:	800000b7          	lui	ra,0x80000
+  7c:	fff00113          	li	sp,-1
+  80:	0220c733          	div	a4,ra,sp
+  84:	800003b7          	lui	t2,0x80000
+  88:	00700193          	li	gp,7
+  8c:	04771863          	bne	a4,t2,dc <fail>
+
+00000090 <test_8>:
+  90:	800000b7          	lui	ra,0x80000
+  94:	00000113          	li	sp,0
+  98:	0220c733          	div	a4,ra,sp
+  9c:	fff00393          	li	t2,-1
+  a0:	00800193          	li	gp,8
+  a4:	02771c63          	bne	a4,t2,dc <fail>
+
+000000a8 <test_9>:
+  a8:	00100093          	li	ra,1
+  ac:	00000113          	li	sp,0
+  b0:	0220c733          	div	a4,ra,sp
+  b4:	fff00393          	li	t2,-1
+  b8:	00900193          	li	gp,9
+  bc:	02771063          	bne	a4,t2,dc <fail>
+
+000000c0 <test_10>:
+  c0:	00000093          	li	ra,0
+  c4:	00000113          	li	sp,0
+  c8:	0220c733          	div	a4,ra,sp
+  cc:	fff00393          	li	t2,-1
+  d0:	00a00193          	li	gp,10
+  d4:	00771463          	bne	a4,t2,dc <fail>
+  d8:	04301263          	bne	zero,gp,11c <pass>
+
+000000dc <fail>:
+  dc:	0ff0000f          	fence
+  e0:	00018063          	beqz	gp,e0 <fail+0x4>
+  e4:	00119193          	slli	gp,gp,0x1
+  e8:	0011e193          	ori	gp,gp,1
+  ec:	05d00893          	li	a7,93
+  f0:	00018513          	mv	a0,gp
+  f4:	000105b7          	lui	a1,0x10
+  f8:	ff058593          	addi	a1,a1,-16 # fff0 <_end+0xdff0>
+  fc:	04600613          	li	a2,70
+ 100:	00c58023          	sb	a2,0(a1)
+ 104:	00000013          	nop
+ 108:	00000013          	nop
+ 10c:	00000013          	nop
+ 110:	00a00613          	li	a2,10
+ 114:	00c58023          	sb	a2,0(a1)
+ 118:	0340006f          	j	14c <__loop>
+
+0000011c <pass>:
+ 11c:	0ff0000f          	fence
+ 120:	00100193          	li	gp,1
+ 124:	000105b7          	lui	a1,0x10
+ 128:	ff058593          	addi	a1,a1,-16 # fff0 <_end+0xdff0>
+ 12c:	05000613          	li	a2,80
+ 130:	00c58023          	sb	a2,0(a1)
+ 134:	00000013          	nop
+ 138:	00000013          	nop
+ 13c:	00000013          	nop
+ 140:	00a00613          	li	a2,10
+ 144:	00c58023          	sb	a2,0(a1)
+ 148:	0040006f          	j	14c <__loop>
+
+0000014c <__loop>:
+ 14c:	0000006f          	j	14c <__loop>
+ 150:	0000                	unimp
+ 152:	0000                	unimp
+ 154:	0000                	unimp
+ 156:	0000                	unimp
+ 158:	0000                	unimp
+ 15a:	0000                	unimp
+ 15c:	0000                	unimp
+ 15e:	0000                	unimp
+ 160:	0000                	unimp
+ 162:	0000                	unimp
+ 164:	0000                	unimp
+ 166:	0000                	unimp
+ 168:	0000                	unimp
+ 16a:	0000                	unimp
+ 16c:	0000                	unimp
+ 16e:	0000                	unimp
+ 170:	0000                	unimp
+ 172:	0000                	unimp
+ 174:	0000                	unimp
+ 176:	0000                	unimp
+ 178:	0000                	unimp
+ 17a:	0000                	unimp
+ 17c:	0000                	unimp
+ 17e:	0000                	unimp
+ 180:	0000                	unimp
+ 182:	0000                	unimp

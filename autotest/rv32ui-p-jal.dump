@@ -1,0 +1,99 @@
+
+rv32ui-p-jal:     ファイル形式 elf32-littleriscv
+
+
+セクション .text.init の逆アセンブル:
+
+00000000 <_start>:
+   0:	00200193          	li	gp,2
+   4:	00000093          	li	ra,0
+   8:	0100026f          	jal	tp,18 <target_2>
+
+0000000c <linkaddr_2>:
+   c:	00000013          	nop
+  10:	00000013          	nop
+  14:	0400006f          	j	54 <fail>
+
+00000018 <target_2>:
+  18:	00000117          	auipc	sp,0x0
+  1c:	ff410113          	addi	sp,sp,-12 # c <linkaddr_2>
+  20:	02411a63          	bne	sp,tp,54 <fail>
+
+00000024 <test_3>:
+  24:	00100093          	li	ra,1
+  28:	0140006f          	j	3c <test_3+0x18>
+  2c:	00108093          	addi	ra,ra,1
+  30:	00108093          	addi	ra,ra,1
+  34:	00108093          	addi	ra,ra,1
+  38:	00108093          	addi	ra,ra,1
+  3c:	00108093          	addi	ra,ra,1
+  40:	00108093          	addi	ra,ra,1
+  44:	00300393          	li	t2,3
+  48:	00300193          	li	gp,3
+  4c:	00709463          	bne	ra,t2,54 <fail>
+  50:	04301263          	bne	zero,gp,94 <pass>
+
+00000054 <fail>:
+  54:	0ff0000f          	fence
+  58:	00018063          	beqz	gp,58 <fail+0x4>
+  5c:	00119193          	slli	gp,gp,0x1
+  60:	0011e193          	ori	gp,gp,1
+  64:	05d00893          	li	a7,93
+  68:	00018513          	mv	a0,gp
+  6c:	000105b7          	lui	a1,0x10
+  70:	ff058593          	addi	a1,a1,-16 # fff0 <_end+0xdff0>
+  74:	04600613          	li	a2,70
+  78:	00c58023          	sb	a2,0(a1)
+  7c:	00000013          	nop
+  80:	00000013          	nop
+  84:	00000013          	nop
+  88:	00a00613          	li	a2,10
+  8c:	00c58023          	sb	a2,0(a1)
+  90:	0340006f          	j	c4 <__loop>
+
+00000094 <pass>:
+  94:	0ff0000f          	fence
+  98:	00100193          	li	gp,1
+  9c:	000105b7          	lui	a1,0x10
+  a0:	ff058593          	addi	a1,a1,-16 # fff0 <_end+0xdff0>
+  a4:	05000613          	li	a2,80
+  a8:	00c58023          	sb	a2,0(a1)
+  ac:	00000013          	nop
+  b0:	00000013          	nop
+  b4:	00000013          	nop
+  b8:	00a00613          	li	a2,10
+  bc:	00c58023          	sb	a2,0(a1)
+  c0:	0040006f          	j	c4 <__loop>
+
+000000c4 <__loop>:
+  c4:	0000006f          	j	c4 <__loop>
+  c8:	0000                	unimp
+  ca:	0000                	unimp
+  cc:	0000                	unimp
+  ce:	0000                	unimp
+  d0:	0000                	unimp
+  d2:	0000                	unimp
+  d4:	0000                	unimp
+  d6:	0000                	unimp
+  d8:	0000                	unimp
+  da:	0000                	unimp
+  dc:	0000                	unimp
+  de:	0000                	unimp
+  e0:	0000                	unimp
+  e2:	0000                	unimp
+  e4:	0000                	unimp
+  e6:	0000                	unimp
+  e8:	0000                	unimp
+  ea:	0000                	unimp
+  ec:	0000                	unimp
+  ee:	0000                	unimp
+  f0:	0000                	unimp
+  f2:	0000                	unimp
+  f4:	0000                	unimp
+  f6:	0000                	unimp
+  f8:	0000                	unimp
+  fa:	0000                	unimp
+  fc:	0000                	unimp
+  fe:	0000                	unimp
+ 100:	0000                	unimp
+ 102:	0000                	unimp

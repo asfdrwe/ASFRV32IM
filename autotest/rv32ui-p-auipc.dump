@@ -1,0 +1,63 @@
+
+rv32ui-p-auipc:     ファイル形式 elf32-littleriscv
+
+
+セクション .text.init の逆アセンブル:
+
+00000000 <_start>:
+   0:	00002517          	auipc	a0,0x2
+   4:	71c50513          	addi	a0,a0,1820 # 271c <_end+0x71c>
+   8:	004005ef          	jal	a1,c <_start+0xc>
+   c:	40b50533          	sub	a0,a0,a1
+  10:	000023b7          	lui	t2,0x2
+  14:	71038393          	addi	t2,t2,1808 # 2710 <_end+0x710>
+  18:	00200193          	li	gp,2
+  1c:	02751463          	bne	a0,t2,44 <fail>
+
+00000020 <test_3>:
+  20:	ffffe517          	auipc	a0,0xffffe
+  24:	8fc50513          	addi	a0,a0,-1796 # ffffd91c <_end+0xffffb91c>
+  28:	004005ef          	jal	a1,2c <test_3+0xc>
+  2c:	40b50533          	sub	a0,a0,a1
+  30:	ffffe3b7          	lui	t2,0xffffe
+  34:	8f038393          	addi	t2,t2,-1808 # ffffd8f0 <_end+0xffffb8f0>
+  38:	00300193          	li	gp,3
+  3c:	00751463          	bne	a0,t2,44 <fail>
+  40:	04301263          	bne	zero,gp,84 <pass>
+
+00000044 <fail>:
+  44:	0ff0000f          	fence
+  48:	00018063          	beqz	gp,48 <fail+0x4>
+  4c:	00119193          	slli	gp,gp,0x1
+  50:	0011e193          	ori	gp,gp,1
+  54:	05d00893          	li	a7,93
+  58:	00018513          	mv	a0,gp
+  5c:	000105b7          	lui	a1,0x10
+  60:	ff058593          	addi	a1,a1,-16 # fff0 <_end+0xdff0>
+  64:	04600613          	li	a2,70
+  68:	00c58023          	sb	a2,0(a1)
+  6c:	00000013          	nop
+  70:	00000013          	nop
+  74:	00000013          	nop
+  78:	00a00613          	li	a2,10
+  7c:	00c58023          	sb	a2,0(a1)
+  80:	0340006f          	j	b4 <__loop>
+
+00000084 <pass>:
+  84:	0ff0000f          	fence
+  88:	00100193          	li	gp,1
+  8c:	000105b7          	lui	a1,0x10
+  90:	ff058593          	addi	a1,a1,-16 # fff0 <_end+0xdff0>
+  94:	05000613          	li	a2,80
+  98:	00c58023          	sb	a2,0(a1)
+  9c:	00000013          	nop
+  a0:	00000013          	nop
+  a4:	00000013          	nop
+  a8:	00a00613          	li	a2,10
+  ac:	00c58023          	sb	a2,0(a1)
+  b0:	0040006f          	j	b4 <__loop>
+
+000000b4 <__loop>:
+  b4:	0000006f          	j	b4 <__loop>
+  b8:	0000                	unimp
+  ba:	0000                	unimp

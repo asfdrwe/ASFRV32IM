@@ -8,7 +8,7 @@ ASFRV32IM is based on [ASFRV32I](https://github.com/asfdrwe/ASFRV32I).
 
 ## LICENSE
   ```
-Copyright (c) 2020 asfdrwe <asfdrwe@gmail.com>
+Copyright (c) 2020 2021 asfdrwe <asfdrwe@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -30,6 +30,9 @@ IN THE SOFTWARE.
   ```
 
 ## Changelog
+- 20210402
+add riscv-tests automated-test patch
+
 - 20210308
 removed the unnecessary wire bit of r_addr1, r_addr2, w_addr
 
@@ -90,6 +93,7 @@ $ git clone https://github.com/asfdrwe/ASFRV32IM.git
 ## Synthesis
   ```
 $ iverilog -o RV32IM RV32IM.v RV32IM_test.v
+$ iverilog -o RV32IM_uart RV32IM.v RV32IM_uart_test.v
 $ iverilog -o RV32IM_coremark RV32IM.v RV32IM_coremark_test.v
   ```
   
@@ -97,7 +101,13 @@ $ iverilog -o RV32IM_coremark RV32IM.v RV32IM_coremark_test.v
   ```
 $ ./RV32IM
   ```
+
 ## Run as uart mode
+  ```
+$ ./RV32IM_uart
+  ```
+
+## Run as benchmark test mode
   ```
 $ ./RV32IM_coremark
   ```
@@ -180,7 +190,7 @@ $ riscv64-unknown-elf-gcc -o test1.bin test1.S -march=rv32g -mabi=ilp32 -nostdli
   ```
 
 You need to convert binary to hex text.
-You use objcopy command and [freedom-bin2hex.py](https://github.com/sifive/elf2hex/blob/master/freedom-bin2hex.py) (require python).
+You use objcopy command and [freedom-bin2hex.py](https://github.com/sifive/elf2hex/blob/master/freedom-bin2hex.py) (require python) .
 
   ```
 $ riscv64-unknown-elf-objcopy -O binary test1 test1.bin
@@ -306,18 +316,89 @@ $ git submodule update --init --recursive
 $ autoconf
   ```
 
-You need [riscv-tests.patch](riscv-tests.patch) for 0 address startup and removal of CSR code 
+##### automated version
+I made two patches for ASFRV32IM.
+
+The first is [riscv-tests_auto.patch](riscv-tests_auto.patch).
+It is  for 0 address startup and removal of CSR code, and the test code outputs P when passed or the test code output F when failed.
+
+```
+$ patch -p1 < (ASFRV32IM dir)/riscv-tests_auto.patch
+```
+
+- \*.hex in [autotest](autotest/) are precompiled and hex format converted riscv-tests for ASFRV32IM.
+- \*.dump in [autotest](autotest/) are deassembled riscv-tests programs.
+
+BUILD
+```
+$ ./configure
+$ make
+```
+
+The test programs are under isa/.
+
+CONVERT rv32ui-p-xxx and rv32um-p-xxx to \*.hex
+```
+$ mkdir ../autotest
+$ cp (from freedom-bin2hex path)/freedom-bin2hex.py ../autotest
+$ cd isa
+$ cp -a rv32ui-p-* rv32um-p-* ../../autotest/
+$ cd ../../autotest
+$ for i in *; do riscv64-unknown-elf-objcopy $i -O binary $i.bin ; python freedom-bin2hex.py -w 8 $i.bin $i.hex ; done
+```
+
+RUN riscv-tests
+```
+$ cd ..
+$ for i in autotest/*.hex ; do \cp -f "$i" test.hex ; echo "$i" ; ./RV32IM_uart ; done
+```
+
+RESULT:
+```
+autotest/rv32ui-p-add.hex
+WARNING: RV32IM.v:11: $readmemh(test.hex): Not enough words in the file for the requested range [0:65535].
+P
+autotest/rv32ui-p-addi.hex
+WARNING: RV32IM.v:11: $readmemh(test.hex): Not enough words in the file for the requested range [0:65535].
+P
+autotest/rv32ui-p-and.hex
+WARNING: RV32IM.v:11: $readmemh(test.hex): Not enough words in the file for the requested range [0:65535].
+P
+autotest/rv32ui-p-andi.hex
+WARNING: RV32IM.v:11: $readmemh(test.hex): Not enough words in the file for the requested range [0:65535].
+P
+autotest/rv32ui-p-auipc.hex
+WARNING: RV32IM.v:11: $readmemh(test.hex): Not enough words in the file for the requested range [0:65535].
+P
+autotest/rv32ui-p-beq.hex
+WARNING: RV32IM.v:11: $readmemh(test.hex): Not enough words in the file for the requested range [0:65535].
+P
+autotest/rv32ui-p-bge.hex
+WARNING: RV32IM.v:11: $readmemh(test.hex): Not enough words in the file for the requested range [0:65535].
+P
+autotest/rv32ui-p-bgeu.hex
+WARNING: RV32IM.v:11: $readmemh(test.hex): Not enough words in the file for the requested range [0:65535].
+P
+...
+```
+
+All rv32ui-p(RV32I) and rv32um-p(RV32M) pass.
+
+##### old version
+The second patch is [riscv-tests.patch](riscv-tests.patch).
+It is for 0 address startup and removal of CSR code 
 (NOTE: ASFRV32IM's ecall acts as jump instruction to 0 address).
 
 ```
 $ patch -p1 < (ASFRV32IM dir)/riscv-tests.patch
-  ```
+```
 
 - \*.hex in [test](test/) are precompiled and hex format converted riscv-tests for ASFRV32IM.
 - \*.dump in [test](test/) are deassembled riscv-tests programs.
 
 BUILD
 ```
+$ ./configure
 $ make
 ```
 

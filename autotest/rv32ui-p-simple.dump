@@ -1,0 +1,30 @@
+
+rv32ui-p-simple:     ファイル形式 elf32-littleriscv
+
+
+セクション .text.init の逆アセンブル:
+
+00000000 <_start>:
+   0:	0ff0000f          	fence
+   4:	00100193          	li	gp,1
+   8:	000105b7          	lui	a1,0x10
+   c:	ff058593          	addi	a1,a1,-16 # fff0 <_end+0xdff0>
+  10:	05000613          	li	a2,80
+  14:	00c58023          	sb	a2,0(a1)
+  18:	00000013          	nop
+  1c:	00000013          	nop
+  20:	00000013          	nop
+  24:	00a00613          	li	a2,10
+  28:	00c58023          	sb	a2,0(a1)
+  2c:	0040006f          	j	30 <__loop>
+
+00000030 <__loop>:
+  30:	0000006f          	j	30 <__loop>
+  34:	0000                	unimp
+  36:	0000                	unimp
+  38:	0000                	unimp
+  3a:	0000                	unimp
+  3c:	0000                	unimp
+  3e:	0000                	unimp
+  40:	0000                	unimp
+  42:	0000                	unimp
